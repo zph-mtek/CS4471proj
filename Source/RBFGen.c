@@ -61,10 +61,10 @@ int main(int argc, char *argv[])
 
     //Generates corresponding rbf with embedded IP addresses
     for(int i = 0; i < 10; i++) {
-        for(int j = 0; j < 256; j++) {
+        for(int j = 0; j < 1000; j++) {
             //creating ip for the hash
             char ip[14];
-            sprintf(ip, "192.168.%d.%d", i, j);
+            sprintf(ip, "192.168.%d.%03d", i, j);
             for(int l = 1; l < 9; l++) {
                 //flipping bit of the column found with hash key
                 int column = hashKey(l, ip, m);
