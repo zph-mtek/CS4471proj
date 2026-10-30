@@ -17,17 +17,15 @@ int hash20(const char *text)
          | hash[31];
 }
 
-// Helper, will convert the input inot a string and return the hashed value mod 2
-int hashColumn(const int j)
+
+// Helper, takes a key and an input and will return the hashed value mod m
+int hashKey(int key, char* input, int mod)
 {
-    // SHA256 is 32 bytes allocated
-    char column[31];
-    char input[32];
+    char string[32];
 
-    sprintf(column, "%d", j);
-    sprintf(input, "0%s", column);
+    sprintf(string, "%d%s", key, input);
 
-    return hash20(input) % 2;
+    return hash20(string) % mod;
 }
 
 
@@ -50,17 +48,45 @@ int main(int argc, char *argv[])
 
     //initializing the rbf
     for(int j = 0; j < m; j++) {
-        rbf[j] = 1 - hashColumn(j);
+        char input[32];
+        sprintf(input, "%d", j);
+        rbf[j] = 1 - hashKey(0, input, 2);
     }
 
-    // Generate the first row of the RBF
-    char ip[14];
+    //Generates corresponding rbf with embedded IP addresses
+    for(int i = 0; i < 10; i++) {
+        for(int j = 0; j < 1000; j++) {
+            //creating ip for the hash
+            char ip[14];
+            sprintf(ip, "192.168.%d.%d", i, j);
+            for(int l = 1; l < 9; l++) {
+                //flipping bit of the column found with hash key
+                int column = hashKey(l, ip, m);
+                char col[32];
+                sprintf(col, "%d", column);
+                rbf[column] = hashKey(0, col, 2);
+            }
+        }
+    }
 
-    // Insert RBF Stuff
+    char buffer[100];
 
-    // Generate IP strings
+    sprintf(buffer, "../Results/%s", argv[2]);
 
+    //opening output file
+    FILE *output = fopen(buffer, "w");
+    
+    if (output == NULL) {
+        printf("Could not open file");
+        return 1;
+    }
 
+    //write to the output file
+    for(int i = 0; i < m; i++) {
+        fprintf(output, "%d", rbf[i]);
+    }
+
+    fclose(output);
 
     return 0;
 }
