@@ -1,4 +1,4 @@
-#include "sha256.h"
+#include "SHA256.h"
 #include <memory.h>
 
 // Google AI Overview for SHA-256 Implementation

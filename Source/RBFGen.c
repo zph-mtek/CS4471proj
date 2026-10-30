@@ -1,5 +1,9 @@
 // Creating the Bloom Filter
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include "SHA256.h"
 
 // Helper, run SHA256 and return its lowest 20 bits
 int hash20(const char *text)
