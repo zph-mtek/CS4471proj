@@ -1,5 +1,4 @@
 # CS4471proj
-Correct folder
 
 m1  = (-8*10000)/(ln(1-(0.0001)^1/8))
     = -80000/ln(1-0.316227766)
@@ -19,3 +18,6 @@ m2  = -80000/(ln(1-(0.001)^1/8))
 
 c2  = 1040000/146077
     = 7.119532
+
+TESTING
+Please follow the testing steps as indicated in the project requirements. No additional steps necessary.
