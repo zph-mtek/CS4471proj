@@ -17,6 +17,19 @@ int hash20(const char *text)
          | hash[31];
 }
 
+// Helper, will convert the input inot a string and return the hashed value mod 2
+int hashColumn(const int j)
+{
+    // SHA256 is 32 bytes allocated
+    char column[31];
+    char input[32];
+
+    sprintf(column, "%d", j);
+    sprintf(input, "0%s", column);
+
+    return hash20(input) % 2;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -35,8 +48,10 @@ int main(int argc, char *argv[])
 
     int *rbf = calloc(m, sizeof(int));
 
-    // SHA256 is 32 bytes allocated
-    char input[32];
+    //initializing the rbf
+    for(int j = 0; j < m; j++) {
+        rbf[j] = 1 - hashColumn(j);
+    }
 
     // Generate the first row of the RBF
     char ip[14];
