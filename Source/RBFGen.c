@@ -5,11 +5,6 @@
 #include "sha256.h"
 
 // Creating the Bloom Filter
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include "SHA256.h"
 
 // Helper, run SHA256 and return its lowest 20 bits
 int hash20(const char *text)
@@ -65,7 +60,7 @@ int main(int argc, char *argv[])
 
     //Generates corresponding rbf with embedded IP addresses
     for(int i = 0; i < 10; i++) {
-        for(int j = 0; j < 1000; j++) {
+        for(int j = 0; j < 256; j++) {
             //creating ip for the hash
             char ip[14];
             sprintf(ip, "192.168.%d.%03d", i, j);
