@@ -1,13 +1,56 @@
 // Creating the Bloom Filter
 
-// Read filter size, and output file
+
+// Helper, run SHA256 and return its lowest 20 bits
+int hash20(const char *text)
+{
+    SHA256_CTX ctx;
+    uint8_t hash[32];
+
+    sha256_init(&ctx);
+    sha256_update(&ctx, (const uint8_t *)text, strlen(text));
+    sha256_final(&ctx, hash);
+
+    // Return exactly the lowest 20 bits of the hash as an integer
+    return ((int)(hash[29] & 15) << 16)
+         | ((int)hash[30] << 8)
+         | hash[31];
+}
 
 
-// Generate malicious IP strings
+int main(int argc, char *argv[])
+{
+    // Read filter size, and output file
+    if (argc != 3) {
+        printf("Usage: %s size output.txt\n", argv[0]);
+        return 1;
+    }
 
-// Each IP use eight SHA256 hashes to find 8 columns. 9th hash determines rows cell to use at each column
+    int m = atoi(argv[1]);
+
+    if (m <= 0) {
+        printf("Filter size must be positive\n");
+        return 1;
+    }
+
+    int *rbf = calloc(m, sizeof(int));
+
+    if (rbf == NULL) {
+        printf("Memory allocation failed\n");
+        return 1;
+    }
+
+    // SHA256 is 32 bytes allocated
+    char input[32];
+
+    // Generate the first row of the RBF
+    char ip[14];
+
+    // Insert RBF Stuff
+
+    // Generate IP strings
 
 
-// Update those cells according to RBF rules
 
-// save the first row as a line of zeros and ones .txt. Second row can be inferred
+    return 0;
+}
