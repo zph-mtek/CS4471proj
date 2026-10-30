@@ -35,11 +35,6 @@ int main(int argc, char *argv[])
 
     int *rbf = calloc(m, sizeof(int));
 
-    if (rbf == NULL) {
-        printf("Memory allocation failed\n");
-        return 1;
-    }
-
     // SHA256 is 32 bytes allocated
     char input[32];
 
