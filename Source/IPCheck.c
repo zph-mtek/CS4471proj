@@ -78,9 +78,9 @@ int main(int argc, char *argv[])
 
     // Output the result
     if (possiblyMalicious) {
-        printf("IP is possibly malicious\n");
+        printf("Block\n");
     } else {
-        printf("IP is not in the filter\n");
+        printf("Pass\n");
     }
 
     free(filter);
