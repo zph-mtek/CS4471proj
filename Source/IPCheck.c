@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SHA256.h"
+#include "sha256.h"
 
 // Helper, run SHA256 and return its lowest 20 bits
 int hash20(const char *text)
