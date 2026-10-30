@@ -39,7 +39,10 @@ int main(int argc, char *argv[])
     }
 
     // Open the filter file
-    FILE *file = fopen(argv[1], "r");
+    char buffer[100];
+    sprintf(buffer, "../Results/%s", argv[1]);
+
+    FILE *file = fopen(buffer, "r");
     if (file == NULL) {
         perror("Could not open filter");
         return 1;
