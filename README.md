@@ -9,6 +9,10 @@ cp /usr/bin/file ./victim3
 
 Testing
 
+Part 1:
+
+Make file creates victim1-3
+
 cd Source
 make
 ./seed ./victim1
@@ -16,7 +20,17 @@ chmod u+x ./victim1
 ./victim1 ./victim2
 chmod u+x ./victim2
 ./victim2 ./victim3
-sha256sum ./host1 ./host2 ./host3 ./host4
+
+Part 2:
+
+Make file creates host 1-4 and sets permissions
+
+./seed host1
+./host1 host2
+./host2 host3
+./host3 host4
+
+sha256sum host1 host2 host3 host4
 
 Mutation
 
