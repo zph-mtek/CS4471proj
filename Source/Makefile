@@ -1,4 +1,4 @@
-all: host virus seed
+all: setup
 
 host:
 	gcc -Wall -Wextra host.c -o host
