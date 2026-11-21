@@ -16,10 +16,11 @@ Make file creates victim1-3
 cd Source
 make
 ./seed ./victim1
-chmod u+x ./victim1
+ls -l victim1
 ./victim1 ./victim2
-chmod u+x ./victim2
+ls -l victim2
 ./victim2 ./victim3
+ls -l victim3
 
 Part 2:
 
