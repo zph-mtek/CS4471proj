@@ -26,11 +26,19 @@ static unsigned char *read_file(const char *name, size_t *size) {
     return data;
 }
 
-// Find 0xdeadbeef in an infected binary
+// Find 0xdeadbeef immediately before the ELF host
 static size_t find_sentinel(const unsigned char *data, size_t size) {
     for (size_t i = 0; i + sizeof(SENTINEL) <= size; i++) {
         if (memcmp(data + i, SENTINEL, sizeof(SENTINEL)) == 0) {
-            return i;
+            size_t host_start = i + sizeof(SENTINEL);
+
+            if (host_start + 4 <= size &&
+                data[host_start] == 0x7f &&
+                data[host_start + 1] == 'E' &&
+                data[host_start + 2] == 'L' &&
+                data[host_start + 3] == 'F') {
+                return i;
+            }
         }
     }
 

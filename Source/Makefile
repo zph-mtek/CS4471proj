@@ -13,6 +13,17 @@ seed: virus host
 	cat host >> seed
 	chmod u+x seed
 
+setup: seed
+	cp /bin/ls ./victim1
+	cp /usr/bin/wc ./victim2
+	cp /usr/bin/file ./victim3
+	chmod ugo-x ./victim1 ./victim2 ./victim3
+	cp /bin/ls ./host1
+	cp /bin/ls ./host2
+	cp /bin/ls ./host3
+	cp /bin/ls ./host4
+	chmod ugo-x ./host1 ./host2 ./host3 ./host4
+
 clean:
-	rm -f host virus seed
+	rm -f host virus seed victim1 victim2 victim3 host1 host2 host3 host4
 	rm -rf tem
