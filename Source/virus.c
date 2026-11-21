@@ -13,12 +13,12 @@ static const unsigned char SENTINEL[] = {0xde, 0xad, 0xbe, 0xef};
 // Read a complete file into memory
 static unsigned char *read_file(const char *name, size_t *size) {
     int fd = open(name, O_RDONLY);
-    unsigned char *data = malloc(*size);
-    
-    // Get the size of the file descriptor
+
     struct stat status;
     fstat(fd, &status);
+
     *size = (size_t)status.st_size;
+    unsigned char *data = malloc(*size);
 
     read(fd, data, *size);
     close(fd);
